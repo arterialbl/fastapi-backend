@@ -1,6 +1,7 @@
 from sqlalchemy import String, Boolean, text
 from sqlalchemy.orm import Mapped, mapped_column
-
+from datetime import datetime
+from sqlalchemy import String, DateTime
 from database import Base
 
 class UserDB(Base):
@@ -12,3 +13,10 @@ class UserDB(Base):
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=text("true"), nullable=False)
+
+class RevokedTokenDB(Base):
+    __tablename__ = "revoked_tokens"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    token: Mapped[str] = mapped_column(String(1000), unique=True, nullable=False)
+    revoked_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)

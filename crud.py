@@ -1,8 +1,8 @@
-from models import UserDB
+from models import UserDB, RevokedTokenDB
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from security import hash_password, verify_password
-from auth import create_access_token
+from auth import create_access_token, create_refresh_token
 
 def get_users(
     db: Session,
@@ -70,7 +70,28 @@ def login_user(form_data, db: Session):
 
     access_token = create_access_token({"sub": user.email})
 
-    return {"access_token": access_token, "token_type": "bearer"}
+    refresh_token = create_refresh_token({"sub": user.email})
+
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+    }
+
+def logout_user(refresh_token: str, db: Session):
+    existing_token = db.query(RevokedTokenDB).filter(
+        RevokedTokenDB.token == refresh_token
+    ).first()
+
+    if existing_token:
+        return {"message": "Already logged out"}
+
+    revoked_token = RevokedTokenDB(token=refresh_token)
+
+    db.add(revoked_token)
+    db.commit()
+
+    return {"message": "Logged out successfully"}
 
 def get_user(user_id: int, db: Session):
     return get_user_or_404(user_id, db)
