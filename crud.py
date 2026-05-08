@@ -116,7 +116,7 @@ def delete_user(user_id: int, db: Session):
     db.delete(user)
     db.commit()
 
-    return user
+    return {"message": "User deleted successfully"}
 
 def update_user(user_id: int, updated_user, db: Session):
     user = get_user_or_404(user_id, db)

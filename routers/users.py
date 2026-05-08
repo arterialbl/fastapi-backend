@@ -65,7 +65,7 @@ def activate_user_route(
 ):
     return activate_user(user_id, db)
 
-@router.delete("/users/{user_id}", response_model=User)
+@router.delete("/users/{user_id}")
 def delete_user_route(
     user_id: int,
     db: Session = Depends(get_db),
